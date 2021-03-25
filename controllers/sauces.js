@@ -110,3 +110,107 @@ exports.getAllSauce = (req, res, next) => {
       error
     }));
 };
+
+// Système de like dislike pour les sauces
+
+exports.likeDislike = (req, res, next) => {
+  let like = req.body.like
+  let userId = req.body.userId
+  let sauceId = req.params.id // id de la sauce
+
+  // Like
+  if (like === 1) {
+    Sauce.updateOne({
+        _id: sauceId
+      }, {
+        $push: {
+          usersLiked: userId
+        },
+        $inc: {
+          likes: +1
+        },
+      })
+      .then(() => res.status(200).json({
+        message: 'Sauce likée '
+      }))
+      .catch((error) => res.status(400).json({
+        error
+      }))
+  }
+
+  // Dislike
+  if (like === -1) {
+    Sauce.updateOne(
+        {
+          _id: sauceId
+        }, {
+          $push: {
+            usersDisliked: userId
+          },
+          $inc: {
+            dislikes: +1
+          },
+        }
+      )
+      .then(() => {
+        res.status(200).json({
+          message: 'Sauce disliké'
+        })
+      })
+      .catch((error) => res.status(400).json({
+        error
+      }))
+  }
+
+  // Annuler son like ou dislike
+  if (like === 0) {
+    Sauce.findOne({
+        _id: sauceId
+      })
+      .then((sauce) => {
+
+        // Annule un like
+        if (sauce.usersLiked.includes(userId)) {
+          Sauce.updateOne({
+              _id: sauceId
+            }, {
+              $pull: {
+                usersLiked: userId
+              },
+              $inc: {
+                likes: -1
+              },
+            })
+            .then(() => res.status(200).json({
+              message: 'Like annulé'
+            }))
+            .catch((error) => res.status(400).json({
+              error
+            }))
+        }
+        
+        // Annule un dislike
+        if (sauce.usersDisliked.includes(userId)) {
+          Sauce.updateOne({
+              _id: sauceId
+            }, {
+              $pull: {
+                usersDisliked: userId
+              },
+              $inc: {
+                dislikes: -1
+              },
+            })
+            .then(() => res.status(200).json({
+              message: 'Dislike annulé'
+            }))
+            .catch((error) => res.status(400).json({
+              error
+            }))
+        }
+      })
+      .catch((error) => res.status(404).json({
+        error
+      }))
+  }
+}

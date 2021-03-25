@@ -16,6 +16,10 @@ mongoose.connect('mongodb+srv://TLetocart:toto02toto@cluster0.1qgxq.mongodb.net/
 
 const app = express();
 
+// Gestion des images
+const path = require('path');
+app.use('/images', express.static(path.join(__dirname, 'images')));
+
 //Transformer les données POST en objet JSON pour les exploiter
 app.use(bodyParser.urlencoded({
   extended: true
