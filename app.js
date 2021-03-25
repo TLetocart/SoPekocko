@@ -2,6 +2,7 @@ const express = require("express");
 var bodyParser = require('body-parser');
 const cors = require('cors');
 const signup = require('./routes/signup.js');
+const sauces = require ('./routes/sauce.js');
 
 // On fait appel à la base de données
 const mongoose = require('mongoose');
@@ -25,5 +26,6 @@ app.use(cors());
 
 app.use('/api/auth', signup);
 
+app.use('/api/sauces', sauces);
 
 module.exports = app;
